@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help Me, Yoon!</title>
+<style>
+@font-face {
+  font-family: 'FatPix';
+  src: url('fonts/FatPix-SVG.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'FriendlyScribbles';
+  src: url('fonts/friendlyscribbles.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'ChochoAura';
+  src: url('fonts/Chocho-Aura-Demo.ttf') format('truetype');
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#game {
+  position: relative;
+  width: 960px;
+  height: 540px;
+  overflow: hidden;
+}
+
+#game .bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.6s ease;
+}
+
+.hidden { display: none !important; }
+
+/* ── START SCREEN ── */
+#start-screen {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('assets/classroom blurred.png') center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+#start-screen h1 {
+  font-family: 'FatPix', monospace;
+  font-size: 52px;
+  color: #fff;
+  text-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+#start-screen .start-btn {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+#start-screen .start-btn:hover { transform: scale(1.08); }
+#start-screen .start-btn img {
+  width: 240px;
+  border: 3px solid #fff;
+  border-radius: 40px;
+}
+
+/* ── BACKGROUND LAYERS ── */
+#bg-classroom {
+  background-image: url('assets/classroom background.png');
+  opacity: 0;
+  z-index: 1;
+}
+#bg-dark {
+  background-image: url('assets/classroom dark.png');
+  opacity: 0;
+  z-index: 2;
+}
+
+/* ── INTRO FRAME (Frame 1 style: Yoon left + message frame right) ── */
+#intro-frame {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 15;
+  display: none;
+  background: rgba(0,0,0,0.35);
+}
+#intro-yoon {
+  position: absolute;
+  bottom: 0;
+  left: 4%;
+  height: 90%;
+  filter: drop-shadow(6px 6px 12px rgba(0,0,0,0.5));
+}
+#intro-right {
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+#intro-message-box {
+  width: 100%;
+  background: #faf5e8;
+  border-radius: 20px;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+#intro-title-text {
+  font-family: 'FatPix', monospace;
+  font-size: 22px;
+  color: #fff;
+  background: #f28472;
+  padding: 10px 24px;
+  border-radius: 20px;
+  text-align: center;
+  width: 100%;
+}
+#intro-desc {
+  font-family: 'FriendlyScribbles', sans-serif;
+  font-size: 18px;
+  color: #555;
+  text-align: center;
+  line-height: 1.5;
+  padding: 0 8px;
+}
+#intro-press-a {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+#intro-press-a:hover { transform: scale(1.08); }
+#intro-press-a img { width: 200px; }
+
+/* ── COUNTER ── */
+#counter {
+  position: absolute;
+  top: 0px;
+  left: 12px;
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.4s, transform 0.3s;
+  transform: scale(0.5);
+}
+#counter.show {
+  opacity: 1;
+  transform: scale(1);
+}
+#counter-bg {
+  position: relative;
+  width: 80px;
+}
+#counter-bg img {
+  width: 100%;
+  display: block;
+}
+#counter-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'FatPix', monospace;
+  font-size: 22px;
+  color: #222;
+  font-weight: bold;
+  text-shadow: 0 0 3px rgba(255,255,255,0.8);
+}
+
+/* ── DIALOG BOX ── */
+#dialog-box {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  z-index: 66;
+  display: none;
+  cursor: pointer;
+}
+#dialog-inner {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+#dialog-portrait-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  z-index: 2;
+}
+#dialog-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 4px solid #7b6ba5;
+  background: #a8d8c8;
+}
+#dialog-bubble-wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 120px;
+}
+#dialog-bubble-bg {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0; left: 0;
+}
+#dialog-content {
+  position: relative;
+  padding: 16px 24px 16px 20px;
+  z-index: 1;
+}
+#dialog-name {
+  font-family: 'ChochoAura', cursive;
+  font-size: 20px;
+  color: #555;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+#dialog-text {
+  font-family: 'FriendlyScribbles', sans-serif;
+  font-size: 20px;
+  color: #444;
+  line-height: 1.4;
+}
+
+/* ── SEARCH MODE CURSOR ── */
+#game.search-mode {
+  cursor: url('assets/pixel hand pointer.png') 16 0, pointer;
+}
+
+/* ── CLICKABLE HOTSPOTS ── */
+.hotspot {
+  position: absolute;
+  z-index: 30;
+  cursor: url('assets/pixel hand pointer.png') 16 0, pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.hotspot:hover {
+  background: rgba(255,255,200,0.15);
+}
+.hotspot.found { display: none; }
+
+
+/* ── FOUND OVERLAY ── */
+#found-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 70;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+#found-character {
+  max-height: 80%;
+  z-index: 2;
+  animation: popIn 0.5s ease-out;
+}
+@keyframes popIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+#found-label {
+  z-index: 3;
+  margin-top: 10px;
+}
+#found-label-text {
+  font-family: 'FatPix', monospace;
+  font-size: 20px;
+  color: #fff;
+  background: #f28472;
+  padding: 10px 30px;
+  border-radius: 25px;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* ── TADA / SPARKLE LINES ── */
+.sparkle-left, .sparkle-right {
+  position: absolute;
+  top: 50%;
+  height: 70%;
+  z-index: 1;
+  opacity: 0;
+  animation: sparkleIn 0.6s 0.2s ease-out forwards;
+}
+.sparkle-left {
+  left: 5%;
+  transform: translateY(-50%) scaleX(-1);
+}
+.sparkle-right {
+  right: 5%;
+  transform: translateY(-50%);
+  animation-name: sparkleInRight;
+}
+@keyframes sparkleIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes sparkleInRight {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ── SCENE: Yoon + Happy Student (duo) ── */
+#scene-duo {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 65;
+  display: none;
+}
+#scene-yoon {
+  position: absolute;
+  bottom: 24%;
+  left: 6%;
+  height: 72%;
+}
+#scene-student {
+  position: absolute;
+  bottom: 24%;
+  right: 6%;
+  height: 72%;
+}
+
+/* ── ITEM OBTAINED SCREEN ── */
+#item-screen {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 80;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+#item-image {
+  max-width: 50%;
+  max-height: 50%;
+  z-index: 2;
+  animation: popIn 0.5s ease-out;
+}
+#item-text {
+  font-family: 'FatPix', monospace;
+  font-size: 18px;
+  color: #fff;
+  background: #f28472;
+  padding: 12px 28px;
+  border-radius: 25px;
+  border: 3px solid #fff;
+  margin-top: 20px;
+  z-index: 3;
+  cursor: pointer;
+  transition: transform 0.15s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+#item-text:hover { transform: scale(1.05); }
+
+/* ── END SCREEN ── */
+#end-screen {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 90;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+#end-title {
+  font-family: 'ChochoAura', cursive;
+  font-size: 36px;
+  color: #fff;
+  background: #f28472;
+  padding: 20px 50px 16px;
+  border-radius: 16px;
+  border: 4px solid #fff;
+  text-align: center;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+#end-subtitle {
+  font-family: 'FatPix', monospace;
+  font-size: 20px;
+  color: #fff;
+  margin-top: 4px;
+  z-index: 2;
+}
+#restart-btn {
+  margin-top: 24px;
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 0.15s;
+}
+#restart-btn:hover { transform: scale(1.1); }
+#restart-btn img { width: 70px; }
+
+/* ── DARK OVERLAY ── */
+#dark-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.55);
+  z-index: 62;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+#dark-overlay.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="game">
+  <!-- Backgrounds -->
+  <div id="bg-classroom" class="bg"></div>
+  <div id="bg-dark" class="bg"></div>
+
+  <!-- Start Screen -->
+  <div id="start-screen">
+    <h1>Help Me, Yoon!</h1>
+    <div class="start-btn" id="start-btn">
+      <img src="assets/start button.png" alt="Start Game">
+    </div>
+  </div>
+
+  <!-- Intro Frame (Frame 1: Yoon + message box) -->
+  <div id="intro-frame">
+    <img id="intro-yoon" src="assets/yoon.PNG" alt="Yoon">
+    <div id="intro-right">
+      <div id="intro-message-box">
+        <div id="intro-title-text">Help Yoon Catch Her Students</div>
+        <div id="intro-desc">
+          Some of Yoon's beloved students haven't turned in their daily practices on time...
+          Help her track down these rascals in time for showcase!
+        </div>
+      </div>
+      <div id="intro-press-a">
+        <img src="assets/press a button.png" alt="Press A To Start">
+      </div>
+    </div>
+  </div>
+
+  <!-- Counter -->
+  <div id="counter">
+    <div id="counter-bg">
+      <img src="assets/counter.png" alt="counter">
+      <span id="counter-text">0/5</span>
+    </div>
+  </div>
+
+  <!-- Hotspots (search mode) -->
+  <div id="hotspots" class="hidden"></div>
+
+  <!-- Dark overlay for scenes -->
+  <div id="dark-overlay"></div>
+
+  <!-- Found overlay -->
+  <div id="found-overlay">
+    <img class="sparkle-left" src="assets/tada effect.png" alt="">
+    <img class="sparkle-right" src="assets/tada effect.png" alt="">
+    <img id="found-character" src="" alt="">
+    <div id="found-label">
+      <span id="found-label-text"></span>
+    </div>
+  </div>
+
+  <!-- Scene: Yoon + Student duo -->
+  <div id="scene-duo">
+    <img id="scene-yoon" src="assets/yoon.PNG" alt="Yoon">
+    <img id="scene-student" src="" alt="">
+  </div>
+
+  <!-- Item obtained screen -->
+  <div id="item-screen">
+    <img class="sparkle-left" src="assets/tada effect.png" alt="">
+    <img class="sparkle-right" src="assets/tada effect.png" alt="">
+    <img id="item-image" src="" alt="">
+    <div id="item-text"></div>
+  </div>
+
+  <!-- End screen -->
+  <div id="end-screen">
+    <img class="sparkle-left" src="assets/tada effect.png" alt="">
+    <img class="sparkle-right" src="assets/tada effect.png" alt="">
+    <div id="end-title">You Obtained a Game!<br>It's this one!<br><span id="end-subtitle">The End</span></div>
+    <div id="restart-btn">
+      <img src="assets/restart game button.png" alt="Restart">
+    </div>
+  </div>
+
+  <!-- Dialog box -->
+  <div id="dialog-box">
+    <div id="dialog-inner">
+      <div id="dialog-portrait-wrapper">
+        <img id="dialog-portrait" src="" alt="">
+      </div>
+      <div id="dialog-bubble-wrapper">
+        <img id="dialog-bubble-bg" src="assets/text bubble.png" alt="">
+        <div id="dialog-content">
+          <div id="dialog-name"></div>
+          <div id="dialog-text"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const game = $('game');
+
+const STUDENTS = {
+  ajia: {
+    name: 'AJIA',
+    sadDialog: "assets/ajia sad dialog.png",
+    happyDialog: "assets/ajia happy dialog.png",
+    sadBody: "assets/ajia sad.PNG",
+    happyBody: "assets/ajia happy.PNG",
+    sadLine: "Oh shit its Yoon... I gotta hide!",
+    happyLine: "Oh Yoon... I didn't see you there. My portfolio isn't quite done but I do have something for you...",
+    item: "assets/popcorn.PNG",
+    itemText: "You obtained a lukewarm bag of popcorn!"
+  },
+  isabella: {
+    name: 'ISABELLA',
+    sadDialog: "assets/isabella sad dialog.png",
+    happyDialog: "assets/isabella happy dialog.png",
+    sadBody: "assets/isabella sad.PNG",
+    happyBody: "assets/isabella happy.PNG",
+    sadLine: "Oh gosh. My new font is done but I don't want anyone to see it yet...",
+    happyLine: "Hi Yoon! I wasn't hiding for sure. Here look, I made you a sweater! It's got a tag with my new daily practice font.",
+    item: "assets/sweater.PNG",
+    itemText: "You obtained a handknit sweater!"
+  },
+  olivia: {
+    name: 'OLIVIA',
+    sadDialog: "assets/olivia sad dialog.png",
+    happyDialog: "assets/olivia happy dialog.png",
+    sadBody: "assets/olivia sad.PNG",
+    happyBody: "assets/olivia happy.PNG",
+    sadLine: "Shoot shoot shoot. AAAAAHHHHH!!!",
+    happyLine: "Oh hey Yoon. Yeah I was definitely not freaking out or anything. But I drew you something! It might not be good though. (It's AWESOME.)",
+    item: "assets/portrait.PNG",
+    itemText: "You obtained a heartwarming portrait!"
+  },
+  joy: {
+    name: 'JOY',
+    sadDialog: "assets/joy sad dialog.png",
+    happyDialog: "assets/joy happy dialog.png",
+    sadBody: "assets/joy sad.PNG",
+    happyBody: "assets/joy happy.PNG",
+    sadLine: "[Don't have a inner monologue. Don't have a inner monologue. Don't have a inner monologue. I'm monologuing aren't I...]",
+    happyLine: "Oh heyyy Yoon. Funny seeing you here. Coaster? What coaster? Oh right, here.",
+    item: "assets/coaster.PNG",
+    itemText: "You obtained a hand-painted coaster!"
+  },
+  tiff: {
+    name: 'TIFF',
+    sadDialog: null,
+    happyDialog: "assets/tiff happy dialog.png",
+    sadBody: null,
+    happyBody: "assets/tiff happy.PNG",
+    sadLine: null,
+    happyLine: "Oh darn you caught me. I mean, it's not like I didn't do a SINGLE daily practice or anything. Hahaha...",
+    item: null,
+    itemText: null
+  }
+};
+
+const HOTSPOTS = [
+  { id: 'ajia',     student: 'ajia',     left: '32%', top: '59%', width: '6%', height: '13%' },
+  { id: 'isabella',  student: 'isabella',  left: '77%', top: '53%', width: '6%', height: '11%' },
+  { id: 'olivia',   student: 'olivia',   left: '0', top: '42%', width: '50px', height: '75px' },
+  { id: 'joy',      student: 'joy',      left: '60%', top: '25%', width: '30px', height: '40px' },
+  { id: 'tiff',     student: 'tiff',     left: '29%', top: '84%', width: '62px', height: '15%' },
+  { id: 'empty1',   student: null,       left: '41%', top: '3%', width: '14%', height: '14%' },
+  { id: 'empty2',   student: null,       left: '15%', top: '14%', width: '30px', height: '40px' },
+  { id: 'empty3',   student: null,       left: '64%', top: '57%', width: '8%', height: '15%' },
+  { id: 'empty4',   student: null,       left: '27%', top: '10%', width: '100px', height: '100px' },
+  { id: 'empty5',   student: null,       left: '80%', top: '2%', width: '70px', height: '90px' },
+  { id: 'empty6',   student: null,       left: '88%', top: '30%', width: '30px', height: '35px' },
+  { id: 'empty7',   student: null,       left: '10%', top: '82%', width: '70px', height: '80px' },
+];
+
+let foundStudents = new Set();
+let studentsFound = 0;
+let searchActive = false;
+
+// ── START ──
+$('start-btn').addEventListener('click', startGame);
+
+function startGame() {
+  $('start-screen').style.transition = 'opacity 0.8s';
+  $('start-screen').style.opacity = '0';
+  setTimeout(() => {
+    $('start-screen').classList.add('hidden');
+    beginIntro();
+  }, 800);
+}
+
+function beginIntro() {
+  $('bg-classroom').style.opacity = '1';
+  setTimeout(() => {
+    $('intro-frame').style.display = 'block';
+    $('intro-press-a').addEventListener('click', startIntroDialog, { once: true });
+  }, 600);
+}
+
+function startIntroDialog() {
+  $('intro-frame').style.display = 'none';
+
+  showDialog('assets/yoon dialog.png', 'YOON',
+    "Hmm... It looks like I'm missing 5 students... but I know they must be here in Studio.",
+    () => {
+      hideDialog();
+      $('counter').classList.add('show');
+      updateCounter();
+      startSearch();
+    }
+  );
+}
+
+// ── DIALOG SYSTEM ──
+let dialogCallback = null;
+
+function showDialog(portrait, name, text, onComplete) {
+  $('dialog-portrait').src = portrait;
+  $('dialog-name').textContent = name;
+  $('dialog-text').textContent = '';
+  $('dialog-box').style.display = 'block';
+  dialogCallback = onComplete;
+
+  let i = 0;
+  const fullText = text;
+  let typing = true;
+
+  function typeChar() {
+    if (!typing) return;
+    if (i < fullText.length) {
+      $('dialog-text').textContent += fullText[i];
+      i++;
+      setTimeout(typeChar, 25);
+    }
+  }
+  typeChar();
+
+  $('dialog-box').onclick = () => {
+    if (i < fullText.length) {
+      typing = false;
+      $('dialog-text').textContent = fullText;
+      i = fullText.length;
+    } else {
+      $('dialog-box').onclick = null;
+      if (dialogCallback) dialogCallback();
+    }
+  };
+}
+
+function hideDialog() {
+  $('dialog-box').style.display = 'none';
+  $('dialog-box').onclick = null;
+}
+
+// ── SEARCH MODE ──
+function startSearch() {
+  searchActive = true;
+  game.classList.add('search-mode');
+  updateCounter();
+  createHotspots();
+}
+
+function createHotspots() {
+  const container = $('hotspots');
+  container.innerHTML = '';
+  container.classList.remove('hidden');
+
+  HOTSPOTS.forEach(h => {
+    const el = document.createElement('div');
+    el.className = 'hotspot';
+    el.id = 'hotspot-' + h.id;
+    el.style.left = h.left;
+    el.style.top = h.top;
+    el.style.width = h.width;
+    el.style.height = h.height;
+
+    if (h.student && foundStudents.has(h.student)) {
+      el.classList.add('found');
+    }
+
+    if (h.student === 'tiff' && studentsFound < 4) {
+      el.style.display = 'none';
+    }
+
+    el.addEventListener('click', () => onHotspotClick(h));
+    container.appendChild(el);
+  });
+}
+
+function onHotspotClick(hotspot) {
+  if (!searchActive) return;
+  searchActive = false;
+  game.classList.remove('search-mode');
+
+  if (!hotspot.student) {
+    showEmptySpot();
+    return;
+  }
+
+  if (foundStudents.has(hotspot.student)) {
+    searchActive = true;
+    game.classList.add('search-mode');
+    return;
+  }
+
+  if (hotspot.student === 'tiff' && studentsFound < 4) {
+    searchActive = true;
+    game.classList.add('search-mode');
+    return;
+  }
+
+  beginStudentSequence(hotspot.student);
+}
+
+function showEmptySpot() {
+  showDialog('assets/yoon dialog.png', 'YOON',
+    "Hmm... that spot was empty. Maybe we should try looking somewhere else.",
+    () => {
+      hideDialog();
+      searchActive = true;
+      game.classList.add('search-mode');
+    }
+  );
+}
+
+function updateCounter() {
+  $('counter-text').textContent = studentsFound + '/5';
+}
+
+// ── STUDENT FOUND SEQUENCE ──
+function beginStudentSequence(studentKey) {
+  const s = STUDENTS[studentKey];
+
+  if (studentKey === 'tiff') {
+    beginTiffSequence(s);
+    return;
+  }
+
+  // Step 1: "You Found [NAME]" with full body sad on classroom bg
+  $('found-character').src = s.sadBody;
+  $('found-label-text').textContent = 'You Found ' + s.name;
+  $('found-overlay').style.display = 'flex';
+  $('found-overlay').style.background = 'rgba(0,0,0,0.4)';
+
+  $('found-overlay').onclick = () => {
+    $('found-overlay').onclick = null;
+    $('found-overlay').style.display = 'none';
+
+    // Step 2: Sad dialog on classroom bg
+    showDialog(s.sadDialog, s.name, s.sadLine, () => {
+      hideDialog();
+
+      // Step 3: Dark bg with Yoon left + happy student right + happy dialog
+      $('dark-overlay').classList.add('show');
+      $('scene-duo').style.display = 'block';
+      $('scene-student').src = s.happyBody;
+
+      setTimeout(() => {
+        showDialog(s.happyDialog, s.name, s.happyLine, () => {
+          hideDialog();
+          $('scene-duo').style.display = 'none';
+          $('dark-overlay').classList.remove('show');
+
+          // Step 4: Item obtained
+          showItemScreen(s);
+        });
+      }, 400);
+    });
+  };
+}
+
+function showItemScreen(s) {
+  $('dark-overlay').classList.add('show');
+  $('item-image').src = s.item;
+  $('item-text').textContent = s.itemText;
+  $('item-screen').style.display = 'flex';
+
+  $('item-text').onclick = () => {
+    $('item-text').onclick = null;
+    $('item-screen').style.display = 'none';
+    $('dark-overlay').classList.remove('show');
+
+    studentsFound++;
+    foundStudents.add(Object.keys(STUDENTS).find(k => STUDENTS[k] === s));
+    updateCounter();
+
+    const tiffSpot = document.getElementById('hotspot-tiff');
+    if (tiffSpot && studentsFound >= 4) {
+      tiffSpot.style.display = '';
+    }
+
+    const key = Object.keys(STUDENTS).find(k => STUDENTS[k] === s);
+    const spot = document.getElementById('hotspot-' + key);
+    if (spot) spot.classList.add('found');
+
+    searchActive = true;
+    game.classList.add('search-mode');
+  };
+}
+
+// ── TIFF SEQUENCE (no sad version) ──
+function beginTiffSequence(s) {
+  $('dark-overlay').classList.add('show');
+  $('scene-duo').style.display = 'block';
+  $('scene-student').src = s.happyBody;
+
+  setTimeout(() => {
+    showDialog(s.happyDialog, s.name, s.happyLine, () => {
+      hideDialog();
+      $('scene-duo').style.display = 'none';
+      $('dark-overlay').classList.remove('show');
+
+      studentsFound++;
+      foundStudents.add('tiff');
+      updateCounter();
+
+      showEndScreen();
+    });
+  }, 400);
+}
+
+function showEndScreen() {
+  $('dark-overlay').classList.add('show');
+  $('end-screen').style.display = 'flex';
+  $('counter').classList.remove('show');
+}
+
+$('restart-btn').addEventListener('click', () => {
+  foundStudents.clear();
+  studentsFound = 0;
+  searchActive = false;
+  game.classList.remove('search-mode');
+
+  $('end-screen').style.display = 'none';
+  $('dark-overlay').classList.remove('show');
+  $('counter').classList.remove('show');
+  $('counter-text').textContent = '0/5';
+  $('bg-classroom').style.opacity = '0';
+  $('bg-dark').style.opacity = '0';
+  $('intro-frame').style.display = 'none';
+  $('hotspots').classList.add('hidden');
+  $('hotspots').innerHTML = '';
+  $('found-overlay').style.display = 'none';
+  $('scene-duo').style.display = 'none';
+  $('item-screen').style.display = 'none';
+  $('dialog-box').style.display = 'none';
+
+  $('start-screen').classList.remove('hidden');
+  $('start-screen').style.opacity = '1';
+});
+</script>
+
+</body>
+</html>
