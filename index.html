@@ -251,23 +251,35 @@ body {
   line-height: 1.4;
 }
 
-/* ── SEARCH MODE CURSOR ── */
-#game.search-mode {
-  cursor: url('assets/pixel hand pointer.png') 16 0, pointer;
-}
-
 /* ── CLICKABLE HOTSPOTS ── */
 .hotspot {
   position: absolute;
   z-index: 30;
-  cursor: url('assets/pixel hand pointer.png') 16 0, pointer;
+  cursor: url('assets/pixel hand pointer small.png') 8 0, pointer;
   border-radius: 8px;
   transition: background 0.2s;
 }
 .hotspot:hover {
-  background: rgba(255,255,200,0.15);
 }
 .hotspot.found { display: none; }
+
+.hotspot .alert-icon {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  width: 24px;
+  margin-left: 2px;
+  opacity: 0;
+  pointer-events: none;
+}
+.hotspot:hover .alert-icon {
+  animation: blink 0.6s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
 
 
 /* ── FOUND OVERLAY ── */
@@ -538,9 +550,17 @@ body {
   </div>
 </div>
 
+<audio id="bgm" src="assets/relaxing-lofi-octacosa-by-ende-dot-app.mp3" loop preload="auto"></audio>
+
 <script>
 const $ = id => document.getElementById(id);
 const game = $('game');
+const bgm = $('bgm');
+bgm.volume = 0.4;
+
+function startBGM() {
+  bgm.play().catch(() => {});
+}
 
 const STUDENTS = {
   ajia: {
@@ -623,6 +643,7 @@ let searchActive = false;
 $('start-btn').addEventListener('click', startGame);
 
 function startGame() {
+  startBGM();
   $('start-screen').style.transition = 'opacity 0.8s';
   $('start-screen').style.opacity = '0';
   setTimeout(() => {
@@ -725,6 +746,12 @@ function createHotspots() {
     }
 
     el.addEventListener('click', () => onHotspotClick(h));
+
+    const alert = document.createElement('img');
+    alert.className = 'alert-icon';
+    alert.src = 'assets/alert animation.png';
+    el.appendChild(alert);
+
     container.appendChild(el);
   });
 }

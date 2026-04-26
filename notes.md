@@ -1,3 +1,15 @@
+Can you also make it so that alert animation.png appears to the right of the hotspot (probably a blinking animation) when the user hover overs the hotspot?
+
+---
+
+When hovering over a hotspot, the only visual effect is that the hotspot appears with a translucent white background.
+Instead of that happening, it would be better if the cursor turned into "pixel hand pointer.png".
+I do see this CSS `cursor: url('assets/pixel hand pointer.png') 16 0, pointer`
+However, it does not appear to be working. The cursor does not turn into pixel hand pointer.
+Is something broken here? Or is a JS solution needed?
+
+---
+
 '/Users/yushiang/Programs/tiff_game/assets/ajia sad.PNG' '/Users/yushiang/Programs/tiff_game/assets/ajia happy.PNG'
 
 Issue 14:
